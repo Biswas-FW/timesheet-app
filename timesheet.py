@@ -42,6 +42,8 @@ def main():
         st.session_state.activity_type = ""
     if "ticket_status" not in st.session_state:
         st.session_state.ticket_status = ""
+    if "task_started" not in st.session_state:
+        st.session_state.task_started = False
     
     if not st.session_state.task_in_progress:
         st.session_state.ticket_id = st.text_input("Enter Ticket ID:")
@@ -58,8 +60,11 @@ def main():
         if st.button("Start Task"):
             st.session_state.start_time = get_ist_time()
             st.session_state.task_in_progress = True
+            st.session_state.task_started = True
             st.success(f"Task started at {st.session_state.start_time}")
-    else:
+            st.rerun()
+    
+    if st.session_state.task_started:
         if st.button("End Task"):
             end_time = get_ist_time()
             new_entry = pd.DataFrame({
@@ -74,6 +79,7 @@ def main():
             save_data(new_entry)
             st.success("Entry saved successfully!")
             st.session_state.task_in_progress = False
+            st.session_state.task_started = False
             st.session_state.start_time = ""
             st.session_state.ticket_id = ""
             st.session_state.team = ""
