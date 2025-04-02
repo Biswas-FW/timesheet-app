@@ -32,40 +32,55 @@ def main():
         st.session_state.task_in_progress = False
     if "start_time" not in st.session_state:
         st.session_state.start_time = ""
-    
-    ticket_id = st.text_input("Enter Ticket ID:", disabled=st.session_state.task_in_progress)
-    
-    team_options = ["FCC - Triage - Self", "FCC - Second Line Support - Self", "FCC - User Access Support - Self", "MS - All Support - Self", "MS - All - Self", "FCC - Triage - FW US", "FCC - Second Line Support - FW US", "FCC - User Access Support - FW US", "MS - All Support - FW US", "MS - All - Self - FW US", "FCC - Triage - FW IN", "FCC - Second Line Support - FW IN", "FCC - User Access Support - FW IN", "MS - All Support - FW IN", "MS - All - Self - FW IN", "Catalogue", "Snowflake", "Triage", "Perpetua"]
-    ticket_type_options = ["Access Requests", "Data Issues", "Other Issues", "Portfolio or catalogue", "Questions", "Task or Change Request", "Triage", "Other Activities"]
-    activity_type_options = ["First Response", "Requesting Okta set up", "Sending to Onboarding team", "Sending to Resolver Group", "Net new reports", "Jira ticket raised", "Replicating the data issue", "Closure", "Market Share access", "Follow Up with Requester/Resolver Group", "Interaction with Internal Team", "Providing access", "Checking on Postman", "Interaction with External Team", "Access Provision and Solved", "Sending to DataLake team", "Internal Meeting", "Triage", "Access Removal and Solved", "Sending to Technical Team", "Documentation", "Trainings", "Analyzing/Troubleshooting"]
-    ticket_status_options = ["Open", "Pending", "On-Hold", "Solved", "Closed", "New"]
-    
-    team = st.selectbox("Select Team:", [""] + team_options, disabled=st.session_state.task_in_progress)
-    ticket_type = st.selectbox("Select Ticket Type:", [""] + ticket_type_options, disabled=st.session_state.task_in_progress)
-    activity_type = st.selectbox("Select Activity Type:", [""] + activity_type_options, disabled=st.session_state.task_in_progress)
-    ticket_status = st.selectbox("Select Ticket Status:", [""] + ticket_status_options, disabled=st.session_state.task_in_progress)
+    if "ticket_id" not in st.session_state:
+        st.session_state.ticket_id = ""
+    if "team" not in st.session_state:
+        st.session_state.team = ""
+    if "ticket_type" not in st.session_state:
+        st.session_state.ticket_type = ""
+    if "activity_type" not in st.session_state:
+        st.session_state.activity_type = ""
+    if "ticket_status" not in st.session_state:
+        st.session_state.ticket_status = ""
     
     if not st.session_state.task_in_progress:
+        st.session_state.ticket_id = st.text_input("Enter Ticket ID:")
+        team_options = ["FCC - Triage - Self", "FCC - Second Line Support - Self", "FCC - User Access Support - Self", "MS - All Support - Self", "MS - All - Self", "FCC - Triage - FW US", "FCC - Second Line Support - FW US", "FCC - User Access Support - FW US", "MS - All Support - FW US", "MS - All - Self - FW US", "FCC - Triage - FW IN", "FCC - Second Line Support - FW IN", "FCC - User Access Support - FW IN", "MS - All Support - FW IN", "MS - All - Self - FW IN", "Catalogue", "Snowflake", "Triage", "Perpetua"]
+        ticket_type_options = ["Access Requests", "Data Issues", "Other Issues", "Portfolio or catalogue", "Questions", "Task or Change Request", "Triage", "Other Activities"]
+        activity_type_options = ["First Response", "Requesting Okta set up", "Sending to Onboarding team", "Sending to Resolver Group", "Net new reports", "Jira ticket raised", "Replicating the data issue", "Closure", "Market Share access", "Follow Up with Requester/Resolver Group", "Interaction with Internal Team", "Providing access", "Checking on Postman", "Interaction with External Team", "Access Provision and Solved", "Sending to DataLake team", "Internal Meeting", "Triage", "Access Removal and Solved", "Sending to Technical Team", "Documentation", "Trainings", "Analyzing/Troubleshooting"]
+        ticket_status_options = ["Open", "Pending", "On-Hold", "Solved", "Closed", "New"]
+        
+        st.session_state.team = st.selectbox("Select Team:", [""] + team_options)
+        st.session_state.ticket_type = st.selectbox("Select Ticket Type:", [""] + ticket_type_options)
+        st.session_state.activity_type = st.selectbox("Select Activity Type:", [""] + activity_type_options)
+        st.session_state.ticket_status = st.selectbox("Select Ticket Status:", [""] + ticket_status_options)
+        
         if st.button("Start Task"):
             st.session_state.start_time = get_ist_time()
             st.session_state.task_in_progress = True
             st.success(f"Task started at {st.session_state.start_time}")
     else:
         if st.button("End Task"):
+            end_time = get_ist_time()
             new_entry = pd.DataFrame({
-                "Ticket ID": [ticket_id],
+                "Ticket ID": [st.session_state.ticket_id],
                 "Task Start Time": [st.session_state.start_time],
-                "Task End Time": [get_ist_time()],
-                "Team": [team],
-                "Ticket Type": [ticket_type],
-                "Activity Type": [activity_type],
-                "Ticket Status": [ticket_status]
+                "Task End Time": [end_time],
+                "Team": [st.session_state.team],
+                "Ticket Type": [st.session_state.ticket_type],
+                "Activity Type": [st.session_state.activity_type],
+                "Ticket Status": [st.session_state.ticket_status]
             })
             save_data(new_entry)
             st.success("Entry saved successfully!")
             st.session_state.task_in_progress = False
             st.session_state.start_time = ""
-            st.experimental_rerun()
+            st.session_state.ticket_id = ""
+            st.session_state.team = ""
+            st.session_state.ticket_type = ""
+            st.session_state.activity_type = ""
+            st.session_state.ticket_status = ""
+            st.rerun()
     
     # File Download Option
     st.markdown("### Download Timesheet Data")
